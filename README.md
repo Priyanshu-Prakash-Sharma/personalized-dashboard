@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ✨ Personalized Content Dashboard
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Redux](https://img.shields.io/badge/Redux-764ABC?style=for-the-badge&logo=redux&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-First, run the development server:
+**[➡️ View Live Demo](https://your-deployment-link-here.com)**
 
-```bash
+---
+
+## 📖 Project Overview
+
+This is a dynamic and interactive dashboard built as a solution for the **SDE Internship Frontend Development assignment**. The application provides users with a feature-rich, personalized feed of content from multiple real-world APIs, allowing for a high degree of customization and a modern user experience.
+
+---
+
+## 🚀 Key Features
+
+- 🎨 **Personalized & Unified Feed**: Aggregates content from multiple live APIs (**NewsAPI**, **OMDb API**) into a single, seamless feed.
+- 🔧 **User Preference Management**: Filter the content feed by selecting favorite categories from a settings panel.
+- 🔍 **Real-time Search**: A search bar that instantly filters all content as you type.
+- ✋ **Drag-and-Drop Reordering**: Click and drag content cards to organize the feed in any preferred order.
+- ⭐ **Favorites System**: Mark items as "favorite" and view them on a dedicated `/favorites` page.
+- 🔄 **Infinite Scrolling**: New content from different categories is automatically fetched as the user scrolls down.
+- 🌗 **Light/Dark Mode**: A theme toggle in the header to switch between light and dark modes.
+- 📱 **Responsive Design**: The UI is fully responsive and works seamlessly on all device sizes.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: Redux Toolkit
+- **Animations**: Framer Motion
+- **Drag & Drop**: [`dnd-kit`](https://dndkit.com/)
+- **Infinite Scroll**: [`react-intersection-observer`](https://www.npmjs.com/package/react-intersection-observer)
+
+---
+
+## ⚙️ Getting Started
+
+To run this project locally, follow these steps:
+
+### 🔹 1. Clone the Repository
+
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+
+### 🔹 2. Install Dependencies
+
+npm install
+
+
+### 🔹 3. Set Up Environment Variables
+
+Create a new file named `.env.local` in the root of the project and add your API keys:
+
+NEXT_PUBLIC_NEWS_API_KEY=your_news_api_key_here
+NEXT_PUBLIC_OMDB_API_KEY=your_omdb_api_key_here
+
+
+### 🔹 4. Run the Development Server
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open the browser and visit:  
+➡️ `http://localhost:3000`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## ⚠️ Known Issues
 
-To learn more about Next.js, take a look at the following resources:
+### 🌗 Theme Toggle Issue
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The light/dark mode toggle is fully implemented using React, Redux, and Tailwind CSS. The Redux state updates correctly, and JavaScript applies the `dark` or `light` class to the `<html>` tag.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+However, due to a persistent issue in the local development environment, Tailwind's `dark:` variant styles are not being visually applied.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+✅ **All other features of the application are fully functional.**
