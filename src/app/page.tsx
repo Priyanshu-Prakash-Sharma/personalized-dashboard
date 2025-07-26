@@ -1,29 +1,45 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react'; // <-- Make sure useRef is imported
 import { useSelector, useDispatch } from 'react-redux';
-// Corrected import path for ContentSlice
-import { fetchContent, reorderItems } from '@/store/features/ContentSlice';
+import { fetchContent, reorderItems } from '@/store/features/ContentSlice'; // <-- Check your filename capitalization
 import { RootState, AppDispatch } from '@/store/store';
 import ContentCard from '@/components/ContentCard';
-// Corrected import path for CardSkeleton
 import CardSkeleton from '@/components/CardSkelton';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, rectSwappingStrategy } from '@dnd-kit/sortable';
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
+  const { ref, inView } = useInView();
 
   const { items, favorites, status, page, error } = useSelector((state: RootState) => state.content);
   const { selectedCategories } = useSelector((state: RootState) => state.preferences);
   const { searchTerm } = useSelector((state: RootState) => state.ui);
+  
+  // This ref helps prevent fetching the same page multiple times
+  const fetchedPage = useRef(0);
 
-  // Effect for the very first data load
+  // This effect runs only for the very first data load
   useEffect(() => {
     if (status === 'idle') {
+      fetchedPage.current = 1;
       dispatch(fetchContent(1));
     }
   }, [dispatch, status]);
+
+  // This effect handles all subsequent loads for the infinite scroll
+  useEffect(() => {
+    // We fetch the next page if:
+    // 1. The trigger element is in view.
+    // 2. We are not already in a 'loading' state.
+    // 3. The page number from our state is greater than the last page we fetched.
+    if (inView && status !== 'loading' && page > fetchedPage.current) {
+      fetchedPage.current = page;
+      dispatch(fetchContent(page));
+    }
+  }, [inView, status, page, dispatch]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -32,25 +48,9 @@ export default function Home() {
     }
   };
 
-  // The search and preference filtering logic
   const filteredContent = items
     .filter(item => selectedCategories.includes(item.category))
     .filter(item => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
-
-  if (status === 'loading' && items.length === 0) {
-    return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Your Unified Feed</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)}
-            </div>
-        </div>
-    );
-  }
-
-  if (status === 'failed') {
-      return <div className="text-center py-12 text-red-500"><h2 className="text-xl font-bold">Failed to Load Content</h2><p>{error}</p></div>
-  }
 
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -58,17 +58,27 @@ export default function Home() {
         <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Your Unified Feed</h1>
         <SortableContext items={filteredContent.map(item => item.id)} strategy={rectSwappingStrategy}>
           <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredContent.length > 0 ? (
-              filteredContent.map((item) => (
-                <ContentCard key={item.id} {...item} isFavorite={favorites.includes(item.id)} />
-              ))
-            ) : (
-              <p className="text-center text-gray-500 mt-8 col-span-full">No content found for your selected filters.</p>
-            )}
+            <AnimatePresence>
+              {filteredContent.map((item) => (
+                <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <ContentCard {...item} isFavorite={favorites.includes(item.id)} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </motion.div>
         </SortableContext>
         
-        {status !== 'loading' && <p className="text-center text-gray-500 my-8">End of content.</p>}
+        {/* Trigger element for infinite scroll */}
+        <div ref={ref} />
+
+        {/* Loading skeletons */}
+        {status === 'loading' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            <CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton />
+          </div>
+        )}
+        
+        {status === 'failed' && <p className="text-center text-red-500 my-8">Error: {error}</p>}
       </div>
     </DndContext>
   );
