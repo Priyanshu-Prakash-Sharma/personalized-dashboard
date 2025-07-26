@@ -31,7 +31,7 @@ This is a dynamic and interactive dashboard built as a solution for the **SDE In
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **State Management**: Redux Toolkit
