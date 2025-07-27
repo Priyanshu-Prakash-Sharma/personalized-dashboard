@@ -8,13 +8,12 @@ interface ApiArticle {
   url: string;
   urlToImage: string | null;
 }
-// This is the corrected ApiMovie type with the 'Response' property
 interface ApiMovie {
   imdbID: string;
   Title: string;
   Plot: string;
   Poster: string;
-  Response: string; // <-- This fixes the TypeScript error
+  Response: string;
 }
 interface ContentItem {
   id: string;
@@ -24,7 +23,6 @@ interface ContentItem {
   imageUrl: string | null;
   url: string;
 }
-// The state now includes 'canLoadMore' to fix the stuck loading bug
 interface ContentState {
   items: ContentItem[];
   favorites: string[];

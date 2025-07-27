@@ -1,10 +1,10 @@
 'use client';
-import { useEffect, useRef } from 'react'; 
+import { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchContent, reorderItems } from '@/store/features/ContentSlice'; 
+import { fetchContent, reorderItems } from '@/store/features/ContentSlice'; // Make sure this filename matches yours
 import { RootState, AppDispatch } from '@/store/store';
 import ContentCard from '@/components/ContentCard';
-import CardSkeleton from '@/components/CardSkelton';
+import CardSkeleton from '@/components/CardSkelton'; // Corrected typo here
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
@@ -14,14 +14,12 @@ export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
   const { ref, inView } = useInView();
 
-  const { items, favorites, status, page, error } = useSelector((state: RootState) => state.content);
+  const { items, favorites, status, page, error, canLoadMore } = useSelector((state: RootState) => state.content);
   const { selectedCategories } = useSelector((state: RootState) => state.preferences);
   const { searchTerm } = useSelector((state: RootState) => state.ui);
   
-  // This ref helps prevent fetching the same page multiple times
   const fetchedPage = useRef(0);
 
-  // This effect runs only for the very first data load
   useEffect(() => {
     if (status === 'idle') {
       fetchedPage.current = 1;
@@ -29,17 +27,12 @@ export default function Home() {
     }
   }, [dispatch, status]);
 
-  // This effect handles all subsequent loads for the infinite scroll
   useEffect(() => {
-    // We fetch the next page if:
-    // 1. The trigger element is in view.
-    // 2. We are not already in a 'loading' state.
-    // 3. The page number from our state is greater than the last page we fetched.
-    if (inView && status !== 'loading' && page > fetchedPage.current) {
+    if (inView && status !== 'loading' && canLoadMore && page > fetchedPage.current) {
       fetchedPage.current = page;
       dispatch(fetchContent(page));
     }
-  }, [inView, status, page, dispatch]);
+  }, [inView, status, page, dispatch, canLoadMore]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -59,23 +52,35 @@ export default function Home() {
         <SortableContext items={filteredContent.map(item => item.id)} strategy={rectSwappingStrategy}>
           <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <AnimatePresence>
-              {filteredContent.map((item) => (
-                <motion.div key={item.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <ContentCard {...item} isFavorite={favorites.includes(item.id)} />
-                </motion.div>
-              ))}
+              {filteredContent.length > 0 ? (
+                filteredContent.map((item) => (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <ContentCard {...item} isFavorite={favorites.includes(item.id)} />
+                  </motion.div>
+                ))
+              ) : (
+                status !== 'loading' && <p className="text-center text-gray-500 mt-8 col-span-full">No content found for your selected filters.</p>
+              )}
             </AnimatePresence>
           </motion.div>
         </SortableContext>
         
-        {/* Trigger element for infinite scroll */}
-        <div ref={ref} />
-
-        {/* Loading skeletons */}
-        {status === 'loading' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
-            <CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton />
+        {canLoadMore ? (
+          <div ref={ref}>
+            {status === 'loading' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+                <CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton />
+              </div>
+            )}
           </div>
+        ) : (
+          status !== 'loading' && <p className="text-center text-gray-500 my-8">You have reached the end!</p>
         )}
         
         {status === 'failed' && <p className="text-center text-red-500 my-8">Error: {error}</p>}
