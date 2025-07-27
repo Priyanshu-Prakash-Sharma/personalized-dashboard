@@ -111,7 +111,9 @@ const contentSlice = createSlice({
     builder
       .addCase(fetchContent.pending, (state) => { state.status = 'loading'; })
       .addCase(fetchContent.fulfilled, (state, action) => {
-        state.items.push(...action.payload);
+        const existingIds = new Set(state.items.map(item => item.id));
+        const uniqueNewItems = action.payload.filter(item => !existingIds.has(item.id));
+        state.items.push(...uniqueNewItems);
         state.status = 'succeeded';
         state.page += 1;
       })
