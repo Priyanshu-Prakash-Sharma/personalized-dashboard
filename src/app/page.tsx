@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useRef } from 'react'; // <-- Make sure useRef is imported
+import { useEffect, useRef } from 'react'; 
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchContent, reorderItems } from '@/store/features/ContentSlice'; // <-- Check your filename capitalization
+import { fetchContent, reorderItems } from '@/store/features/ContentSlice'; 
 import { RootState, AppDispatch } from '@/store/store';
 import ContentCard from '@/components/ContentCard';
 import CardSkeleton from '@/components/CardSkelton';
